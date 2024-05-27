@@ -1,0 +1,39 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+    - master
+
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    env:
+      VCVARS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\Tools\\vsdevcmd.bat"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install NASM
+      run: |
+        choco install nasm
+        Add-Content "$env:GITHUB_PATH" 'C:\Program Files\NASM'
+
+    - name: Build 64-bit
+      shell: cmd
+      run: call build.bat
+
+    - name: Run 64-bit
+      run: .\shellcodeish64.exe
+
+    - name: Build 32-bit
+      shell: cmd
+      run: call build.bat 32
+
+    - name: Run 32-bit
+      run: .\shellcodeish32.exe

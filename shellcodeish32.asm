@@ -1,6 +1,3 @@
-; -arch=x86 -host_arch=amd64 -no_logo
-; nasm -f win32 shellcodeish32.asm && link shellcodeish32.obj /nologo /machine:x86 /out:shellcodeish32.exe /subsystem:console /stub:stub.bin /emittoolversioninfo:no /entry:entry /opt:icf /opt:ref /emitpogophaseinfo /fixed
-
 %macro STDCALL 1-*
   %rep %0-1
     %rotate -1

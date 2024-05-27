@@ -1,6 +1,3 @@
-; -arch=amd64 -host_arch=amd64 -no_logo
-; nasm -f win64 shellcodeish64.asm && link shellcodeish64.obj /nologo /machine:amd64 /out:shellcodeish64.exe /subsystem:console /stub:stub.bin /emittoolversioninfo:no /entry:entry /opt:icf /opt:ref /emitpogophaseinfo /fixed /largeaddressaware:no
-
 [bits 64]
 [cpu x64]
 
