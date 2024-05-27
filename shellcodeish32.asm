@@ -35,7 +35,9 @@ kernel32_handle dd 0
 
 section .text
 
-global entry
+global _get_proc_address@12
+global pre_entry
+extern _entry@4
 
 _init_system_handles@0:
   xor eax, eax
@@ -121,11 +123,13 @@ _get_proc_address@12:
 .ret:
   ret 12
 
-entry:
+pre_entry:
   and esp, -16
   STDCALL _init_system_handles@0
   STDCALL _get_proc_address@12, eax, str_ExitProcess, end_ExitProcess - str_ExitProcess
-  STDCALL eax, 0
+  mov ebx, eax
+  STDCALL _entry@4, instance_handle
+  STDCALL ebx, eax
   int3
 
 section .rdata

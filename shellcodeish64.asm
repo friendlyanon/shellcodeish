@@ -12,7 +12,9 @@ kernel32_handle dq 0
 
 section .text
 
-global entry
+global get_proc_address
+global pre_entry
+extern entry
 
 init_system_handles:
   xor rax, rax
@@ -97,15 +99,19 @@ get_proc_address:
 .ret:
   ret
 
-entry:
-  add rsp, -40
+pre_entry:
+  add rsp, -32
+  and rsp, -16
   call init_system_handles
   mov rcx, rax
   mov rdx, str_ExitProcess
-  mov r8, (end_ExitProcess - str_ExitProcess)
+  mov r8, end_ExitProcess - str_ExitProcess
   call get_proc_address
-  xor rcx, rcx
-  call rax
+  mov rbx, rax
+  mov rcx, instance_handle
+  call entry
+  xor ecx, ecx
+  call rbx
   int3
 
 section .rdata
