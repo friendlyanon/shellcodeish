@@ -32,10 +32,7 @@ struct string_view
 
 static struct string_view sv(char const* data, size size)
 {
-  struct string_view string;
-  string.data = data;
-  string.size = size;
-  return string;
+  return (struct string_view) {data, size};
 }
 
 typedef i32(STDCALL* t_WriteFile)(size, void const*, i32, i32*, size);
@@ -72,9 +69,8 @@ static int set_utf8_output(void const* kernel32)
 {
   STRING(s_SetConsoleOutputCP, "SetConsoleOutputCP\0");
   t_SetConsoleOutputCP p_SetConsoleOutputCP =
-      (t_SetConsoleOutputCP)get_proc_address(kernel32,
-                                             s_SetConsoleOutputCP,
-                                             sizeof(s_SetConsoleOutputCP));
+      (t_SetConsoleOutputCP)get_proc_address(
+          kernel32, s_SetConsoleOutputCP, sizeof(s_SetConsoleOutputCP));
   if (!p_SetConsoleOutputCP) {
     return 1;
   }
