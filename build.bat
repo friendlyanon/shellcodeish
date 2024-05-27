@@ -1,6 +1,12 @@
 @echo off
 
-setlocal
+>&2 echo Start build: %time:,=.%
+call :build %*
+>&2 echo Finish build: %time:,=.%
+exit /b %errorlevel%
+
+:build
+setlocal EnableDelayedExpansion
 
 set arch=amd64
 set format=64
@@ -15,11 +21,13 @@ if "%1"=="32" (
   set ldflags=
 )
 
-if "%VCVARS%"=="" set VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat
+if "%VSCMD_VER%"=="" (
+  if "%VCVARS%"=="" set VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat
+  call "!VCVARS!" -arch=%arch% -host_arch=amd64 -no_logo
+  if not !errorlevel!==0 exit /b !errorlevel!
+)
 
-call "%VCVARS%" -arch=%arch% -host_arch=amd64 -no_logo
-if not %errorlevel%==0 exit /b %errorlevel%
-
+echo shellcodeish%format%.asm
 nasm -f win%format% shellcodeish%format%.asm
 if not %errorlevel%==0 exit /b %errorlevel%
 
