@@ -19,9 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install NASM
+    - name: Install build tools
       run: |
-        choco install nasm
+        choco install nasm explorersuite
         Add-Content "$env:GITHUB_PATH" 'C:\Program Files\NASM'
 
     - name: Build 64-bit

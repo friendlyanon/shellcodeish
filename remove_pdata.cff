@@ -1,0 +1,39 @@
+file = argv[1]
+
+function dieUnless(cond, message)
+  if cond then return end
+
+  local log = CreateLog("cff_error.txt")
+  LogPrint(log, "[" .. file .. "]: " .. message .. "\n")
+  CloseLog(log)
+  error()
+end
+
+function pdataRemove(handle, offset, sections)
+  local i = 0
+  while i ~= sections do
+    local begin = offset + IMAGE_SIZEOF_SECTION_HEADER * i
+    local old = ReadByte(handle, begin + 8)
+    dieUnless(old ~= nil, "Can't read byte for section " .. i)
+    dieUnless(WriteByte(handle, begin + 8, 0), "Can't write null for section " .. i)
+    local name = ReadString(handle, begin)
+    dieUnless(name ~= nil, "Can't read name of section " .. i)
+    local remove = name == ".pdata"
+    dieUnless(WriteByte(handle, begin + 8, old), "Can't write old value for section " .. i)
+    if remove then
+      dieUnless(DeleteSection(handle, i), "Can't remove section " .. i)
+      return
+    end
+    i = i + 1
+  end
+end
+
+handle = OpenFile(file)
+dieUnless(handle, "Can't open file")
+dieUnless(RemoveDataDirectory(handle, IMAGE_DIRECTORY_ENTRY_EXCEPTION), "Can't remove the exception data directory")
+sections = GetNumberOfSections(handle)
+dieUnless(sections, "Can't get the number of sections")
+offset = GetOffset(handle, PE_SectionHeaders)
+dieUnless(offset, "Can't get the section headers offset")
+pdataRemove(handle, offset, sections)
+dieUnless(SaveFile(handle), "Can't save file")
