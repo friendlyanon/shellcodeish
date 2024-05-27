@@ -36,6 +36,15 @@ global _get_proc_address@12
 global pre_entry
 extern _entry@4
 
+pre_entry:
+  and esp, -16
+  STDCALL _init_system_handles@0
+  STDCALL _get_proc_address@12, eax, str_ExitProcess, end_ExitProcess - str_ExitProcess
+  mov ebx, eax
+  STDCALL _entry@4, instance_handle
+  STDCALL ebx, eax
+  int3
+
 _init_system_handles@0:
   xor eax, eax
   mov ecx, fs:[eax + 48]
@@ -119,15 +128,6 @@ _get_proc_address@12:
   add esp, 4
 .ret:
   ret 12
-
-pre_entry:
-  and esp, -16
-  STDCALL _init_system_handles@0
-  STDCALL _get_proc_address@12, eax, str_ExitProcess, end_ExitProcess - str_ExitProcess
-  mov ebx, eax
-  STDCALL _entry@4, instance_handle
-  STDCALL ebx, eax
-  int3
 
 section .rdata
 

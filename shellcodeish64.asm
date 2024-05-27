@@ -13,6 +13,21 @@ global get_proc_address
 global pre_entry
 extern entry
 
+pre_entry:
+  add rsp, -32
+  and rsp, -16
+  call init_system_handles
+  mov rcx, rax
+  mov rdx, str_ExitProcess
+  mov r8, end_ExitProcess - str_ExitProcess
+  call get_proc_address
+  mov rbx, rax
+  mov rcx, instance_handle
+  call entry
+  xor ecx, ecx
+  call rbx
+  int3
+
 init_system_handles:
   xor rax, rax
   mov rcx, gs:[rax + 96]
@@ -95,21 +110,6 @@ get_proc_address:
   mov rsi, [rsp + 8]
 .ret:
   ret
-
-pre_entry:
-  add rsp, -32
-  and rsp, -16
-  call init_system_handles
-  mov rcx, rax
-  mov rdx, str_ExitProcess
-  mov r8, end_ExitProcess - str_ExitProcess
-  call get_proc_address
-  mov rbx, rax
-  mov rcx, instance_handle
-  call entry
-  xor ecx, ecx
-  call rbx
-  int3
 
 section .rdata
 
