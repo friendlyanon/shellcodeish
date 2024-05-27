@@ -23,6 +23,7 @@
 
 [bits 32]
 [cpu 386]
+[default rel]
 
 section .data
 

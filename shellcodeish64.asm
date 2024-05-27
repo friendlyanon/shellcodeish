@@ -1,5 +1,6 @@
 [bits 64]
 [cpu x64]
+[default rel]
 
 section .data
 
