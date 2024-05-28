@@ -25,14 +25,9 @@ if "%VSCMD_ARG_TGT_ARCH%" == "" (
   if "%VCVARS%" == "" set VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat
   call "!VCVARS!" -arch=%arch% -host_arch=amd64 -no_logo
   if not !errorlevel! == 0 exit /b !errorlevel!
-) else (
-  set mismatch=0
-  if !VSCMD_ARG_TGT_ARCH! == x64 if %format% == 32 set mismatch=1
-  if !VSCMD_ARG_TGT_ARCH! == x86 if %format% == 64 set mismatch=1
-  if !mismatch! == 1 (
-    echo vcvars has already been initialized for !VSCMD_ARG_TGT_ARCH!, but the build is targeting %machine%>&2
-    exit /b 1
-  )
+) else if not !VSCMD_ARG_TGT_ARCH! == %machine% (
+  echo vcvars has already been initialized for !VSCMD_ARG_TGT_ARCH!, but the build is targeting %machine%>&2
+  exit /b 1
 )
 
 echo shellcodeish%format%.asm
