@@ -11,8 +11,8 @@ end
 
 function pdataRemove(handle, offset, sections)
   local i = 0
-  while i ~= sections do
-    local begin = offset + IMAGE_SIZEOF_SECTION_HEADER * i
+  local begin = offset
+  repeat
     local old = ReadByte(handle, begin + 8)
     dieUnless(old ~= nil, "Can't read byte for section " .. i)
     dieUnless(WriteByte(handle, begin + 8, 0), "Can't write null for section " .. i)
@@ -25,7 +25,8 @@ function pdataRemove(handle, offset, sections)
       return
     end
     i = i + 1
-  end
+    begin = begin + IMAGE_SIZEOF_SECTION_HEADER
+  until i == sections
 end
 
 handle = OpenFile(file)
