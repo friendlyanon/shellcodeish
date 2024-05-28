@@ -19,6 +19,14 @@ if "%1"=="32" (
   set cflags=/DSIZE_TYPE=int "/DUSIZE_TYPE=unsigned int" /DINT64_TYPE=__int64 /DSTDCALL=__stdcall
 )
 
+set mismatch=0
+if "%VSCMD_ARG_TGT_ARCH%"=="x64" if %format%==32 set mismatch=1
+if "%VSCMD_ARG_TGT_ARCH%"=="x86" if %format%==64 set mismatch=1
+if %mismatch%==1 (
+  >&2 echo vcvars has already been initialized for %VSCMD_ARG_TGT_ARCH%, but the build is targeting %machine%
+  exit /b 1
+)
+
 if "%VSCMD_VER%"=="" (
   if "%VCVARS%"=="" set VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat
   call "!VCVARS!" -arch=%arch% -host_arch=amd64 -no_logo
