@@ -100,6 +100,7 @@ int STDCALL entry(struct system_handles const* handles)
     return 1;
   }
 
+  /* https://www.youtube.com/watch?v=Q55Uc2JCqo8 */
   STRING(message,
          "If you wish to make an apple pie from scratch you must first invent "
          "the universe "
