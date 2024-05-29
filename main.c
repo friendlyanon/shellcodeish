@@ -37,7 +37,7 @@ static struct string_view sv(char const* data, size size)
 
 typedef i32(STDCALL* t_WriteFile)(size, void const*, i32, i32*, size);
 
-t_WriteFile p_WriteFile;
+static t_WriteFile p_WriteFile;
 
 static int output(size handle, struct string_view string)
 {
