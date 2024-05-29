@@ -30,8 +30,6 @@ pre_entry:
   int3
 
 init_system_handles:
-  xor rax, rax
-  mov rcx, gs:[rax + 96]
   mov rcx, [rcx + 24]
   mov rcx, [rcx + 32]
 

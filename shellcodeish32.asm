@@ -38,18 +38,17 @@ global pre_entry
 extern _entry@4
 
 pre_entry:
+  mov eax, [esp + 4]
   and esp, -16
-  STDCALL _init_system_handles@0
+  call @init_system_handles@4
   STDCALL _get_proc_address@12, eax, str_ExitProcess, end_ExitProcess - str_ExitProcess
   mov ebx, eax
   STDCALL _entry@4, instance_handle
   STDCALL ebx, eax
   int3
 
-_init_system_handles@0:
-  xor eax, eax
-  mov ecx, fs:[eax + 48]
-  mov ecx, [ecx + 12]
+@init_system_handles@4:
+  mov ecx, [eax + 12]
   mov ecx, [ecx + 20]
 
   mov eax, [ecx + 16]
