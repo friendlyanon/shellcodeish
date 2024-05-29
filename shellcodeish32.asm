@@ -48,20 +48,20 @@ pre_entry:
   int3
 
 @init_system_handles@4:
-  mov ecx, [eax + 12]
-  mov ecx, [ecx + 20]
+  mov ecx, [eax + 12] ; ldr = peb->Ldr
+  mov ecx, [ecx + 20] ; instance_entry = ldr->InMemoryOrderModuleList.Flink
 
-  mov eax, [ecx + 16]
+  mov eax, [ecx + 16] ; instance_base = containerof(instance_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
   mov [instance_handle], eax
 
-  mov ecx, [ecx]
+  mov ecx, [ecx] ; ntdll_entry = *instance_entry
 
-  mov eax, [ecx + 16]
+  mov eax, [ecx + 16] ; ntdll_base = containerof(ntdll_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
   mov [ntdll_handle], eax
 
-  mov ecx, [ecx]
+  mov ecx, [ecx] ; kernel32_entry = *ntdll_entry
 
-  mov eax, [ecx + 16]
+  mov eax, [ecx + 16] ; kernel32_base = containerof(kernel32_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
   mov [kernel32_handle], eax
 
   ret
@@ -80,38 +80,38 @@ _get_proc_address@12:
   add esp, -4
   PUSH ebx, ebp, edi, esi
 
-  mov ebx, [esp + 24]
-  mov ecx, [ebx + 60]
-  add ecx, ebx
-  mov ecx, [ecx + 120]
-  add ecx, ebx
+  mov ebx, [esp + 24] ; base = first_arg
+  mov ecx, [ebx + 60] ; nt_offset = base->e_lfanew
+  add ecx, ebx ; nt_base = base + nt_offset
+  mov ecx, [ecx + 120] ; export_rva = nt_base->OptionalHeader.DataDirectory[0].VirtualAddress
+  add ecx, ebx ; export_va = base + export_rva
   mov [esp + 16], ecx
-  mov edx, [ecx + 24]
+  mov edx, [ecx + 24] ; names_count = export_va->NumberOfNames
   test edx, edx
   je .end_null
 
-  mov ebp, [ecx + 32]
-  add ebp, ebx
+  mov ebp, [ecx + 32] ; names_rva = export_va->AddressOfNames
+  add ebp, ebx ; names_va = base + names_rva
   xor eax, eax
   cld
 
   .loop:
     mov esi, eax
-    mov esi, [ebp + esi * 4]
-    add esi, ebx
+    mov esi, [ebp + esi * 4] ; name_rva = names_va[eax]
+    add esi, ebx ; name_va = base + name_rva
     mov edi, [esp + 28]
     mov ecx, [esp + 32]
-    repe cmpsb
+    repe cmpsb ; memcmp(name_va, second_arg, third_arg)
     jne .continue
 
     mov ecx, [esp + 16]
-    mov edx, [ecx + 36]
-    add edx, ebx
+    mov edx, [ecx + 36] ; ordinals_rva = export_va->AddressOfNameOrdinals
+    add edx, ebx ; ordinals_va = base + ordinals_rva
     mov esi, eax
-    movzx esi, word [edx + esi * 2]
-    mov edi, [ecx + 28]
-    add edi, ebx
-    mov eax, [edi + esi * 4]
+    movzx esi, word [edx + esi * 2] ; ordinal = ordinals_va[eax]
+    mov edi, [ecx + 28] ; functions = export_va->AddressOfFunctions
+    add edi, ebx ; functions_rva = export_va->AddressOfFunctions
+    mov eax, [edi + esi * 4] ; function = functions_va[ordinal]
     add eax, ebx
     jmp .end
 
