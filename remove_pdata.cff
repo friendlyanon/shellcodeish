@@ -14,10 +14,10 @@ function pdataRemove(handle, offset, sections)
   local begin = offset
   repeat
     local old = ReadByte(handle, begin + 8)
-    dieUnless(old ~= nil, "Can't read byte for section " .. i)
+    dieUnless(old, "Can't read byte for section " .. i)
     dieUnless(WriteByte(handle, begin + 8, 0), "Can't write null for section " .. i)
     local name = ReadString(handle, begin)
-    dieUnless(name ~= nil, "Can't read name of section " .. i)
+    dieUnless(name, "Can't read name of section " .. i)
     local remove = name == ".pdata"
     dieUnless(WriteByte(handle, begin + 8, old), "Can't write old value for section " .. i)
     if remove then
