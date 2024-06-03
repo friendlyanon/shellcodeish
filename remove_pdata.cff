@@ -18,9 +18,8 @@ function pdataRemove(handle, offset, sections)
     dieUnless(WriteByte(handle, begin + 8, 0), "Can't write null for section " .. i)
     local name = ReadString(handle, begin)
     dieUnless(name, "Can't read name of section " .. i)
-    local remove = name == ".pdata"
     dieUnless(WriteByte(handle, begin + 8, old), "Can't write old value for section " .. i)
-    if remove then
+    if name == ".pdata" then
       dieUnless(DeleteSection(handle, i), "Can't remove section " .. i)
       return
     end

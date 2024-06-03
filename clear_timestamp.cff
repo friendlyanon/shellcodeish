@@ -1,0 +1,17 @@
+file = argv[1]
+
+function dieUnless(cond, message)
+  if cond then return end
+
+  local log = CreateLog("cff_error.txt")
+  LogPrint(log, "[" .. file .. "]: " .. message .. "\n")
+  CloseLog(log)
+  error()
+end
+
+handle = OpenFile(file)
+dieUnless(handle, "Can't open file")
+offset = GetOffset(handle, PE_NtHeaders)
+dieUnless(offset, "Can't get the NT header offset")
+dieUnless(WriteDword(handle, offset + 8, 0), "Can't clear the timestamp field")
+dieUnless(SaveFile(handle), "Can't save file")

@@ -43,16 +43,23 @@ cl.exe %clargs% main.c /link %linkargs%
 if not %errorlevel% == 0 exit /b %errorlevel%
 
 del main.obj shellcodeish%format%.obj
+if exist cff_error.txt del cff_error.txt
+
+call :cff clear_timestamp.cff shellcodeish%format%.exe
+if not %errorlevel% == 0 exit /b %errorlevel%
 
 if %format% == 64 (
-  if exist cff_error.txt del cff_error.txt
-  "C:\Program Files\NTCore\Explorer Suite\CFF Explorer.exe" remove_pdata.cff shellcodeish64.exe
-  if exist cff_error.txt (
-    type cff_error.txt>&2
-    exit /b 1
-  )
+  call :cff remove_pdata.cff shellcodeish64.exe
+  if not !errorlevel! == 0 exit /b !errorlevel!
 )
 
 endlocal
 
 exit /b 0
+
+:cff
+"C:\Program Files\NTCore\Explorer Suite\CFF Explorer.exe" %*
+if not exist cff_error.txt exit /b 0
+
+type cff_error.txt>&2
+exit /b 1
