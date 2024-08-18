@@ -15,7 +15,7 @@ global pre_entry
 extern entry
 
 pre_entry:
-  add rsp, -32
+  add rsp, -40
   and rsp, -16
   call init_system_handles
   mov rcx, rax
