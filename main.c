@@ -18,10 +18,8 @@ typedef int(STDCALL* proc)(void);
 
 /* clang-format off */
 #define STRING(name, str) \
-  _Pragma("warning(push)") \
   _Pragma("warning(suppress:4295)") \
-  static char const name[lengthof(str)] = str \
-  _Pragma("warning(pop)")
+  static char const name[lengthof(str)] = str
 /* clang-format on */
 
 struct string_view
@@ -41,12 +39,28 @@ static t_WriteFile p_WriteFile;
 
 static int output(size handle, struct string_view string)
 {
-  i32 written;
-  if (string.size != 0
-      && (p_WriteFile(handle, string.data, (i32)string.size, &written, 0) == 0
-          || written != (i32)string.size))
-  {
-    return 1;
+  if (string.size != 0) {
+    i32 const max_i32 = 0x7FFFFFFF;
+    while (1) {
+      i32 to_write = max_i32;
+      _Bool more = 1;
+      if (string.size <= (size)max_i32) {
+        to_write = (i32)string.size;
+        more = 0;
+      }
+
+      i32 written = 0;
+      if (p_WriteFile(handle, string.data, to_write, &written, 0) == 0
+          || written != to_write)
+      {
+        return 1;
+      }
+
+      if (!more) {
+        break;
+      }
+      string.size -= (size)max_i32;
+    }
   }
 
   return 0;
