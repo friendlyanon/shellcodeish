@@ -18,7 +18,7 @@ if "%1" == "32" (
   set arch=x86
   set format=32
   set machine=x86
-  set cflags=/DSIZE_TYPE=int "/DUSIZE_TYPE=unsigned int" /DINT64_TYPE=__int64 /DSTDCALL=__stdcall
+  set cflags=/DSIZE_TYPE=int "/DUSIZE_TYPE=unsigned int" /DINT64_TYPE=__int64 /DSTDCALL=__stdcall /DIS_ILP32=1
 )
 
 if "%VSCMD_ARG_TGT_ARCH%" == "" (

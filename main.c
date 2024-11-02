@@ -39,6 +39,14 @@ static t_WriteFile p_WriteFile;
 
 static int output(size handle, struct string_view string)
 {
+#ifdef IS_ILP32
+  i32 written = 0;
+  if (p_WriteFile(handle, string.data, string.size, &written, 0) == 0
+      || written != string.size)
+  {
+    return 1;
+  }
+#else
   if (string.size != 0) {
     i32 const max_i32 = 0x7FFFFFFF;
     while (1) {
@@ -59,9 +67,11 @@ static int output(size handle, struct string_view string)
       if (!more) {
         break;
       }
+      string.data += max_i32;
       string.size -= (size)max_i32;
     }
   }
+#endif
 
   return 0;
 }
