@@ -72,7 +72,7 @@ get_proc_address:
 
   mov ebp, [rcx + 32] ; names_rva = export_va->AddressOfNames
   add rbp, r9 ; names_va = base + names_rva
-  xor rax, rax
+  xor eax, eax
   cld
 
   .loop:
@@ -101,7 +101,7 @@ get_proc_address:
     jne .loop
 
 .end_null:
-  xor rax, rax
+  xor eax, eax
 
 .end:
   mov rbp, [rsp + 24]
