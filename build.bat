@@ -37,7 +37,7 @@ if not %errorlevel% == 0 exit /b %errorlevel%
 set warnings=/w14165 /w44242 /w44254 /w34287 /w44296 /w44365 /w44388 /w44464 /w14545 /w14546 /w14547 /w14549 /w14555 /w34619 /w44774 /w44777 /w24826 /w14905 /w14906 /w14928 /W4
 set conformance=/utf-8 /std:c17 /permissive- /volatile:iso /Zc:inline /we4213
 set clargs=/nologo /GS- /Gs1000000000 /O2 /diagnostics:caret %warnings% %conformance% %cflags%
-set linkargs=shellcodeish%format%.obj /machine:%machine% /out:shellcodeish%format%.exe /subsystem:console /stub:stub.bin /ignore:4060 /emittoolversioninfo:no /entry:pre_entry /opt:icf /opt:ref /emitpogophaseinfo /fixed /safeseh:no
+set linkargs=shellcodeish%format%.obj /machine:%machine% /out:shellcodeish%format%.exe /subsystem:console /stub:stub.bin /ignore:4060 /entry:pre_entry /opt:icf /opt:ref /emittoolversioninfo:no /emitpogophaseinfo /fixed /safeseh:no /align:16 /ignore:4108
 
 cl.exe %clargs% main.c /link %linkargs%
 if not %errorlevel% == 0 exit /b %errorlevel%
