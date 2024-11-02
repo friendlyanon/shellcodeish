@@ -49,6 +49,7 @@ init_system_handles:
   ret
 
 get_proc_address:
+  xor eax, eax
   test rcx, rcx
   je .ret
   test rdx, rdx
