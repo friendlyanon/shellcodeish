@@ -1,3 +1,4 @@
 *.obj
 *.exe
 cff_error.txt
+stub.bin

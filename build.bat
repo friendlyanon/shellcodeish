@@ -30,6 +30,12 @@ if "%VSCMD_ARG_TGT_ARCH%" == "" (
   exit /b 1
 )
 
+if not exist stub.bin (
+  echo stub.bin
+  nasm -f bin stub.asm -o stub.bin
+  if not !errorlevel! == 0 exit /b !errorlevel!
+)
+
 echo shellcodeish%format%.asm
 nasm.exe -f win%format% shellcodeish%format%.asm
 if not %errorlevel% == 0 exit /b %errorlevel%
