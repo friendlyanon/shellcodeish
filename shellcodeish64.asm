@@ -13,19 +13,27 @@ section .text
 global get_proc_address
 global pre_entry
 extern entry
+extern load_imports
 
 pre_entry:
   add rsp, -32
   and rsp, -16
   call init_system_handles
+  mov rsi, rax
   mov rcx, rax
   mov rdx, str_ExitProcess
   mov r8, end_ExitProcess - str_ExitProcess
   call get_proc_address
   mov rbx, rax
+  mov rcx, rsi
+  call load_imports
+  test rax, rax
+  jne .exit
   mov rcx, instance_handle
   call entry
-  xor ecx, ecx
+  mov ecx, eax
+
+.exit:
   call rbx
   int3
 

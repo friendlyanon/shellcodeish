@@ -1,4 +1,7 @@
 *.obj
 *.exe
 cff_error.txt
+functions.h
+import32.asm
+import64.asm
 stub.bin

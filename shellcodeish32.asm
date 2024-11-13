@@ -36,14 +36,21 @@ section .text
 global _get_proc_address@12
 global pre_entry
 extern _entry@4
+extern load_imports
 
 pre_entry:
   mov eax, [esp + 4]
   and esp, -16
   call @init_system_handles@4
+  mov esi, eax
   STDCALL _get_proc_address@12, eax, str_ExitProcess, end_ExitProcess - str_ExitProcess
   mov ebx, eax
+  STDCALL load_imports, esi
+  test eax, eax
+  jne .exit
   STDCALL _entry@4, instance_handle
+
+.exit:
   STDCALL ebx, eax
   int3
 
