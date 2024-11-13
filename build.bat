@@ -32,7 +32,7 @@ if "%VSCMD_ARG_TGT_ARCH%" == "" (
   exit /b 1
 )
 
-call :import
+cscript //Nologo //E:JScript "%~f0" %format%
 if not %errorlevel% == 0 exit /b %errorlevel%
 
 echo import%format%.asm
@@ -77,10 +77,6 @@ if not exist cff_error.txt exit /b 0
 type cff_error.txt>&2
 exit /b 1
 
-:import
-cscript //Nologo //E:JScript "%~f0" %format%
-exit /b %errorlevel%
-
 @end
 
 var format = WScript.Arguments(0);
@@ -119,7 +115,7 @@ fso.CreateTextFile("import" + format + ".asm", true).Write(function() {
     var i = 0;
     var length = asm.length;
     for (; i !== length; ++i) {
-      string += f(asm[i]) + "\n";
+      string += f(asm[i], i) + "\n";
     }
     return string;
   }
@@ -128,9 +124,9 @@ fso.CreateTextFile("import" + format + ".asm", true).Write(function() {
   var rdata = x(function(o) { return fmt("str_{} db \"{0}\", 0\nend_{0}:\n", o.name); });
   var globals = x(function(o) { return "global " + n(o); });
   var thunks = x(function(o) { return fmt("{} jmp [p_{}]", n(o), o.name); });
-  var proc = x(function(o) {
+  var proc = x(function(o, i) {
     if (is64) {
-      return fmt("  mov rcx, rbx\n  mov rdx, str_{}\n  mov r8, end_{0} - str_{0}\n  call {}\n  test rax, rax\n  je .fail\n  mov [p_{0}], rax\n", o.name, gpa);
+      return fmt("{}  mov rdx, str_{}\n  mov r8, end_{1} - str_{1}\n  call {}\n  test rax, rax\n  je .fail\n  mov [p_{1}], rax\n", i === 0 ? "" : "  mov rcx, rbx\n", o.name, gpa);
     }
 
     return fmt("  push end_{} - str_{0}\n  push str_{0}\n  push ebx\n  call {}\n  test eax, eax\n  je .fail\n  mov [p_{0}], eax\n", o.name, gpa);
