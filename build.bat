@@ -11,7 +11,7 @@ set now=%time:,=.%
 exit /b %errorlevel%
 
 :build
-setlocal EnableDelayedExpansion
+setlocal
 
 set arch=amd64
 set format=64
@@ -25,10 +25,9 @@ if "%1" == "32" (
 )
 
 if "%VSCMD_ARG_TGT_ARCH%" == "" (
-  if "%VCVARS%" == "" set VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat
-  call "!VCVARS!" -arch=%arch% -host_arch=amd64 -no_logo || goto :exit
-) else if not !VSCMD_ARG_TGT_ARCH! == %machine% (
-  >&2 echo vcvars has already been initialized for !VSCMD_ARG_TGT_ARCH!, but the build is targeting %machine%
+  call :vcvars -arch=%arch% -host_arch=amd64 -no_logo || goto :exit
+) else if not "%VSCMD_ARG_TGT_ARCH%" == "%machine%" (
+  >&2 echo vcvars has already been initialized for %VSCMD_ARG_TGT_ARCH%, but the build is targeting %machine%
   exit /b 1
 )
 
@@ -67,6 +66,14 @@ if not exist cff_error.txt exit /b 0
 
 >&2 type cff_error.txt
 exit /b 1
+
+:vcvars
+if "%VCVARS%" == "" (
+  "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat" %*
+) else (
+  "%VCVARS%" %*
+)
+goto :exit
 
 @end
 
