@@ -7,6 +7,7 @@ set now=%time:,=.%
 call :build %*
 set now=%time:,=.%
 >&2 echo Finish build: %now: =0%
+:exit
 exit /b %errorlevel%
 
 :build
@@ -25,48 +26,38 @@ if "%1" == "32" (
 
 if "%VSCMD_ARG_TGT_ARCH%" == "" (
   if "%VCVARS%" == "" set VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat
-  call "!VCVARS!" -arch=%arch% -host_arch=amd64 -no_logo
-  if not !errorlevel! == 0 exit /b !errorlevel!
+  call "!VCVARS!" -arch=%arch% -host_arch=amd64 -no_logo || goto :exit
 ) else if not !VSCMD_ARG_TGT_ARCH! == %machine% (
   >&2 echo vcvars has already been initialized for !VSCMD_ARG_TGT_ARCH!, but the build is targeting %machine%
   exit /b 1
 )
 
-cscript //Nologo //E:JScript "%~f0" %format%
-if not %errorlevel% == 0 exit /b %errorlevel%
+cscript //Nologo //E:JScript "%~f0" %format% || goto :exit
 
 echo import%format%.asm
-nasm.exe -f win%format% import%format%.asm
-if not %errorlevel% == 0 exit /b %errorlevel%
+nasm.exe -f win%format% import%format%.asm || goto :exit
 
 if not exist stub.bin (
   echo stub.bin
-  nasm -f bin stub.asm -o stub.bin
-  if not !errorlevel! == 0 exit /b !errorlevel!
+  nasm -f bin stub.asm -o stub.bin || goto :exit
 )
 
 echo shellcodeish%format%.asm
-nasm.exe -f win%format% shellcodeish%format%.asm
-if not %errorlevel% == 0 exit /b %errorlevel%
+nasm.exe -f win%format% shellcodeish%format%.asm || goto :exit
 
 set warnings=/Wall /wd4711
 set conformance=/utf-8 /std:c17 /permissive- /volatile:iso /Zc:inline
 set clargs=/nologo /GS- /Gs1000000000 /O2 /diagnostics:caret /I. %warnings% %conformance% %cflags%
 set linkargs=shellcodeish%format%.obj import%format%.obj /machine:%machine% /out:shellcodeish%format%.exe /subsystem:console /stub:stub.bin /ignore:4060 /entry:pre_entry /opt:icf /opt:ref /emittoolversioninfo:no /emitpogophaseinfo /fixed /safeseh:no /align:16 /ignore:4108
 
-cl.exe %clargs% main.c /link %linkargs%
-if not %errorlevel% == 0 exit /b %errorlevel%
+cl.exe %clargs% main.c /link %linkargs% || goto :exit
 
 del main.obj shellcodeish%format%.obj import%format%.obj
 if exist cff_error.txt del cff_error.txt
 
-call :cff clear_timestamp.cff shellcodeish%format%.exe
-if not %errorlevel% == 0 exit /b %errorlevel%
+call :cff clear_timestamp.cff shellcodeish%format%.exe || goto :exit
 
-if %format% == 64 (
-  call :cff remove_pdata.cff shellcodeish64.exe
-  if not !errorlevel! == 0 exit /b !errorlevel!
-)
+if %format% == 64 call :cff remove_pdata.cff shellcodeish64.exe || goto :exit
 
 exit /b 0
 
