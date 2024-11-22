@@ -11,29 +11,27 @@ static int output(size handle, struct string_view string)
     return 1;
   }
 #else
-  if (string.size != 0) {
-    i32 const max_i32 = 0x7FFFFFFF;
-    while (1) {
-      i32 to_write = max_i32;
-      _Bool more = 1;
-      if (string.size <= (size)max_i32) {
-        to_write = (i32)string.size;
-        more = 0;
-      }
-
-      i32 written = 0;
-      if (WriteFile(handle, string.data, to_write, &written, 0) == 0
-          || written != to_write)
-      {
-        return 1;
-      }
-
-      if (!more) {
-        break;
-      }
-      string.data += max_i32;
-      string.size -= (size)max_i32;
+  i32 const max_i32 = 0x7FFFFFFF;
+  while (1) {
+    i32 to_write = max_i32;
+    _Bool more = 1;
+    if (string.size <= (size)max_i32) {
+      to_write = (i32)string.size;
+      more = 0;
     }
+
+    i32 written = 0;
+    if (WriteFile(handle, string.data, to_write, &written, 0) == 0
+        || written != to_write)
+    {
+      return 1;
+    }
+
+    if (!more) {
+      break;
+    }
+    string.data += max_i32;
+    string.size -= (size)max_i32;
   }
 #endif
 
