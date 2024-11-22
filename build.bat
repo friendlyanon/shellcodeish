@@ -31,14 +31,14 @@ if "%VSCMD_ARG_TGT_ARCH%" == "" (
   exit /b 1
 )
 
-cscript //Nologo //E:JScript "%~f0" %format% || goto :exit
+cscript.exe //Nologo //E:JScript "%~f0" %format% || goto :exit
 
 echo import%format%.asm
 nasm.exe -f win%format% import%format%.asm || goto :exit
 
 if not exist stub.bin (
   echo stub.bin
-  nasm -f bin stub.asm -o stub.bin || goto :exit
+  nasm.exe -f bin stub.asm -o stub.bin || goto :exit
 )
 
 echo shellcodeish%format%.asm
@@ -69,9 +69,9 @@ exit /b 1
 
 :vcvars
 if "%VCVARS%" == "" (
-  "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat" %*
+  call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\vsdevcmd.bat" %*
 ) else (
-  "%VCVARS%" %*
+  call "%VCVARS%" %*
 )
 goto :exit
 
