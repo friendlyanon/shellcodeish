@@ -16,12 +16,12 @@ setlocal
 set arch=amd64
 set format=64
 set machine=x64
-set cflags="/DSIZE_TYPE=long long" "/DUSIZE_TYPE=unsigned long long" "/DINT64_TYPE=long long" /DSTDCALL=
+set cflags="/DSIZE_TYPE=long long" /DSTDCALL=
 if "%1" == "32" (
   set arch=x86
   set format=32
   set machine=x86
-  set cflags=/DSIZE_TYPE=int "/DUSIZE_TYPE=unsigned int" "/DINT64_TYPE=long long" /DSTDCALL=__stdcall /DIS_ILP32=1
+  set cflags=/DSIZE_TYPE=int /DSTDCALL=__stdcall /DIS_ILP32=1
 )
 
 if "%VSCMD_ARG_TGT_ARCH%" == "" (
