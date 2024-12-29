@@ -12,7 +12,7 @@ static int output(size handle, struct string_view string)
   }
 #else
   i32 const max_i32 = 0x7FFFFFFF;
-  while (1) {
+  for (;;) {
     i32 to_write = max_i32;
     _Bool more = 1;
     if (string.size <= (size)max_i32) {
