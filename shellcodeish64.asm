@@ -38,20 +38,20 @@ pre_entry:
   int3
 
 init_system_handles:
-  mov rcx, [rcx + 24] ; ldr = peb->Ldr
-  mov rcx, [rcx + 32] ; instance_entry = ldr->InMemoryOrderModuleList.Flink
+  mov rdx, [rcx + 24] ; ldr = peb->Ldr
+  mov r8, [rdx + 32] ; instance_entry = ldr->InMemoryOrderModuleList.Flink
 
-  mov rax, [rcx + 32] ; instance_base = containerof(instance_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
-  mov [instance_handle], rax
+  mov r9, [r8 + 32] ; instance_base = containerof(instance_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
+  mov [instance_handle], r9
 
-  mov rcx, [rcx] ; ntdll_entry = *instance_entry
+  mov r10, [r8] ; ntdll_entry = *instance_entry
 
-  mov rax, [rcx + 32] ; ntdll_base = containerof(ntdll_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
-  mov [ntdll_handle], rax
+  mov r11, [r10 + 32] ; ntdll_base = containerof(ntdll_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
+  mov [ntdll_handle], r11
 
-  mov rcx, [rcx] ; kernel32_entry = *ntdll_entry
+  mov r11, [r10] ; kernel32_entry = *ntdll_entry
 
-  mov rax, [rcx + 32] ; kernel32_base = containerof(kernel32_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
+  mov rax, [r11 + 32] ; kernel32_base = containerof(kernel32_entry, struct LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks)->DllBase
   mov [kernel32_handle], rax
 
   ret
@@ -73,32 +73,27 @@ get_proc_address:
   mov ecx, [r9 + 60] ; nt_offset = base->e_lfanew
   add rcx, r9 ; nt_base = base + nt_offset
   mov ecx, [rcx + 136] ; export_rva = nt_base->OptionalHeader.DataDirectory[0].VirtualAddress
-  add rcx, r9 ; export_va = base + export_rva
-  mov r10, rcx
-  mov r11d, [rcx + 24] ; names_count = export_va->NumberOfNames
+  lea r10, [r9 + rcx] ; export_va = base + export_rva
+  mov r11d, [r10 + 24] ; names_count = export_va->NumberOfNames
   test r11, r11
   je .end_null
 
-  mov ebp, [rcx + 32] ; names_rva = export_va->AddressOfNames
+  mov ebp, [r10 + 32] ; names_rva = export_va->AddressOfNames
   add rbp, r9 ; names_va = base + names_rva
-  xor eax, eax
   cld
 
   .loop:
-    mov rsi, rax
-    mov esi, [rbp + rsi * 4] ; name_rva = names_va[rax]
+    mov esi, [rbp + rax * 4] ; name_rva = names_va[rax]
     add rsi, r9 ; name_va = base + name_rva
     mov rdi, rdx
     mov rcx, r8
     repe cmpsb ; memcmp(name_va, second_arg, third_arg)
     jne .continue
 
-    mov rcx, r10
-    mov edx, [rcx + 36] ; ordinals_rva = export_va->AddressOfNameOrdinals
+    mov edx, [r10 + 36] ; ordinals_rva = export_va->AddressOfNameOrdinals
     add rdx, r9 ; ordinals_va = base + ordinals_rva
-    mov rsi, rax
-    movzx rsi, word [rdx + rsi * 2] ; ordinal = ordinals_va[rax]
-    mov edi, [rcx + 28] ; functions_rva = export_va->AddressOfFunctions
+    movzx rsi, word [rdx + rax * 2] ; ordinal = ordinals_va[rax]
+    mov edi, [r10 + 28] ; functions_rva = export_va->AddressOfFunctions
     add rdi, r9 ; functions_va = base + functions_rva
     mov eax, [rdi + rsi * 4] ; function = functions_va[ordinal]
     add rax, r9

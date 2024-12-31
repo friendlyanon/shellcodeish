@@ -74,23 +74,23 @@ pre_entry:
   ret
 
 _get_proc_address@12:
-  mov eax, [esp + 4]
+  mov eax, [esp + 12]
   test eax, eax
   je .ret
   mov eax, [esp + 8]
   test eax, eax
   je .ret
-  mov eax, [esp + 12]
+  mov eax, [esp + 4]
   test eax, eax
   je .ret
 
   add esp, -4
   PUSH ebx, ebp, edi, esi
 
-  mov ebx, [esp + 24] ; base = first_arg
-  mov ecx, [ebx + 60] ; nt_offset = base->e_lfanew
-  add ecx, ebx ; nt_base = base + nt_offset
-  mov ecx, [ecx + 120] ; export_rva = nt_base->OptionalHeader.DataDirectory[0].VirtualAddress
+  xchg ebx, eax ; base = first_arg
+  mov eax, [ebx + 60] ; nt_offset = base->e_lfanew
+  add eax, ebx ; nt_base = base + nt_offset
+  mov ecx, [eax + 120] ; export_rva = nt_base->OptionalHeader.DataDirectory[0].VirtualAddress
   add ecx, ebx ; export_va = base + export_rva
   mov [esp + 16], ecx
   mov edx, [ecx + 24] ; names_count = export_va->NumberOfNames
@@ -103,8 +103,7 @@ _get_proc_address@12:
   cld
 
   .loop:
-    mov esi, eax
-    mov esi, [ebp + esi * 4] ; name_rva = names_va[eax]
+    mov esi, [ebp + eax * 4] ; name_rva = names_va[eax]
     add esi, ebx ; name_va = base + name_rva
     mov edi, [esp + 28]
     mov ecx, [esp + 32]
@@ -114,8 +113,7 @@ _get_proc_address@12:
     mov ecx, [esp + 16]
     mov edx, [ecx + 36] ; ordinals_rva = export_va->AddressOfNameOrdinals
     add edx, ebx ; ordinals_va = base + ordinals_rva
-    mov esi, eax
-    movzx esi, word [edx + esi * 2] ; ordinal = ordinals_va[eax]
+    movzx esi, word [edx + eax * 2] ; ordinal = ordinals_va[eax]
     mov edi, [ecx + 28] ; functions = export_va->AddressOfFunctions
     add edi, ebx ; functions_rva = export_va->AddressOfFunctions
     mov eax, [edi + esi * 4] ; function = functions_va[ordinal]
