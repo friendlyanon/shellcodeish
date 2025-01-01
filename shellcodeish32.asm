@@ -42,9 +42,11 @@ pre_entry:
   mov eax, [esp + 4]
   and esp, -16
   call @init_system_handles@4
-  mov esi, eax
-  STDCALL _get_proc_address@12, eax, str_ExitProcess, end_ExitProcess - str_ExitProcess
-  mov ebx, eax
+  xchg esi, eax
+  STDCALL _get_proc_address@12, esi, str_ExitProcess, end_ExitProcess - str_ExitProcess
+  test eax, eax
+  je .break
+  xchg ebx, eax
   STDCALL load_imports, esi
   test eax, eax
   jne .exit
@@ -52,6 +54,7 @@ pre_entry:
 
 .exit:
   STDCALL ebx, eax
+.break:
   int3
 
 @init_system_handles@4:

@@ -20,21 +20,24 @@ pre_entry:
   and rsp, -16
   call init_system_handles
   mov rsi, rax
-  mov rcx, rax
+  xchg rcx, rax
   mov rdx, str_ExitProcess
   mov r8, end_ExitProcess - str_ExitProcess
   call get_proc_address
-  mov rbx, rax
-  mov rcx, rsi
+  test rax, rax
+  je .break
+  xchg rbx, rax
+  xchg rcx, rsi
   call load_imports
   test rax, rax
   jne .exit
   mov rcx, instance_handle
   call entry
-  mov ecx, eax
+  xchg ecx, eax
 
 .exit:
   call rbx
+.break:
   int3
 
 init_system_handles:
