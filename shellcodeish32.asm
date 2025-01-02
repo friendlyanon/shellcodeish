@@ -92,8 +92,7 @@ _get_proc_address@12:
 
   xchg ebx, eax ; base = first_arg
   mov eax, [ebx + 60] ; nt_offset = base->e_lfanew
-  add eax, ebx ; nt_base = base + nt_offset
-  mov ecx, [eax + 120] ; export_rva = nt_base->OptionalHeader.DataDirectory[0].VirtualAddress
+  mov ecx, [eax + ebx + 120] ; export_rva = (base + nt_offset)->OptionalHeader.DataDirectory[0].VirtualAddress
   add ecx, ebx ; export_va = base + export_rva
   mov [esp + 16], ecx
   mov edx, [ecx + 24] ; names_count = export_va->NumberOfNames

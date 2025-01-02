@@ -73,9 +73,8 @@ get_proc_address:
   mov [rsp + 24], rbp
 
   mov r9, rcx ; base = first_arg
-  mov ecx, [r9 + 60] ; nt_offset = base->e_lfanew
-  add rcx, r9 ; nt_base = base + nt_offset
-  mov ecx, [rcx + 136] ; export_rva = nt_base->OptionalHeader.DataDirectory[0].VirtualAddress
+  mov r10d, [r9 + 60] ; nt_offset = base->e_lfanew
+  mov ecx, [r9 + r10 + 136] ; export_rva = (base + nt_offset)->OptionalHeader.DataDirectory[0].VirtualAddress
   lea r10, [r9 + rcx] ; export_va = base + export_rva
   mov r11d, [r10 + 24] ; names_count = export_va->NumberOfNames
   test r11, r11
